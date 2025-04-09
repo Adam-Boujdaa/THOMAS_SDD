@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../include/trajets.h"
+#include "trajets.h"
 
 #define MAX_NOM_VILLE 85 // Longueur maximale du nom d'une ville en France
 
