@@ -1,22 +1,23 @@
+#define _GNU_SOURCE   //obligatoire pr bien inclure string.h pr strdup apres 
+#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include "trajets.h"
 
 #define MAX_NOM_VILLE 85 // Longueur maximale du nom d'une ville en France
 
 // Définition de la structure Trajet
-typedef struct s_trajet {
+struct s_trajet {
     char gare_depart[MAX_NOM_VILLE]; // Nom de la gare de départ
     char gare_arrivee[MAX_NOM_VILLE]; // Nom de la gare d'arrivée
     float duree; // Durée totale du trajet en heures
     char** liste_gares; // Liste des gares intermédiaires (tableau dynamique de chaînes)
     int nombre_gares; // Nombre de gares intermédiaires
-} Trajet;
+};
 
 // Constructeur
-Trajet* trajet_init() {
-    Trajet* trajet = (Trajet*)malloc(sizeof(Trajet));
+Trajet trajet_init() {
+    Trajet trajet = (Trajet)malloc(sizeof(struct s_trajet));
     if (!trajet) {
         fprintf(stderr, "Erreur : allocation mémoire pour le trajet.\n");
         exit(EXIT_FAILURE);
@@ -30,7 +31,7 @@ Trajet* trajet_init() {
 }
 
 // Gestion des gares dans un trajet
-void trajet_ajouter_gare(Trajet* trajet, const char* nom_gare, float temps_depuis_depart) {
+void trajet_ajouter_gare(Trajet trajet, char* nom_gare, float temps_depuis_depart) {
     if (!trajet || !nom_gare) return;
 
     trajet->liste_gares = realloc(trajet->liste_gares, (trajet->nombre_gares + 1) * sizeof(char*));
@@ -48,7 +49,7 @@ void trajet_ajouter_gare(Trajet* trajet, const char* nom_gare, float temps_depui
     trajet->nombre_gares++;
 }
 
-void trajet_supprimer_gare(Trajet* trajet, const char* nom_gare) {
+void trajet_supprimer_gare(Trajet trajet, char* nom_gare) {
     if (!trajet || !nom_gare) return;
 
     for (int i = 0; i < trajet->nombre_gares; i++) {
@@ -63,16 +64,16 @@ void trajet_supprimer_gare(Trajet* trajet, const char* nom_gare) {
     }
 }
 
-void trajet_modifier_temps(Trajet* trajet, const char* nom_gare, float nouveau_temps) {
+void trajet_modifier_temps(Trajet trajet, char* nom_gare, float nouveau_temps) {
     // Cette fonction pourrait être utilisée pour modifier la durée associée à une gare spécifique.
     // Implémentation dépendante des besoins.
 }
 
 // Manipulation des trajets
-Trajet* trajet_fusionner(const Trajet* trajet1, const Trajet* trajet2) {
+Trajet trajet_fusionner(Trajet trajet1, Trajet trajet2) {
     if (!trajet1 || !trajet2) return NULL;
 
-    Trajet* nouveau_trajet = trajet_init();
+    Trajet nouveau_trajet = trajet_init();
     strcpy(nouveau_trajet->gare_depart, trajet1->gare_depart);
     strcpy(nouveau_trajet->gare_arrivee, trajet2->gare_arrivee);
     nouveau_trajet->duree = trajet1->duree + trajet2->duree;
@@ -84,7 +85,8 @@ Trajet* trajet_fusionner(const Trajet* trajet1, const Trajet* trajet2) {
     }
 
     for (int i = 0; i < trajet1->nombre_gares; i++) {
-        nouveau_trajet->liste_gares[i] = strdup(trajet1->liste_gares[i]);
+        nouveau_trajet->liste_gares[i] = malloc(strlen(trajet1->liste_gares[i]) + 1);
+        strcpy(nouveau_trajet->liste_gares[i], trajet1->liste_gares[i]);
     }
     
     for (int i = 0; i < trajet2->nombre_gares; i++) {
@@ -96,7 +98,7 @@ Trajet* trajet_fusionner(const Trajet* trajet1, const Trajet* trajet2) {
     return nouveau_trajet;
 }
 
-Trajet* trajet_prolonger(Trajet* trajet, const char* nouvelle_gare, float temps_supplementaire) {
+Trajet trajet_prolonger(Trajet trajet, char* nouvelle_gare, float temps_supplementaire) {
     if (!trajet || !nouvelle_gare) return NULL;
 
     strcpy(trajet->gare_arrivee, nouvelle_gare);
@@ -106,7 +108,7 @@ Trajet* trajet_prolonger(Trajet* trajet, const char* nouvelle_gare, float temps_
     return trajet;
 }
 
-Trajet* trajet_raccourcir(Trajet* trajet, const char* gare_finale) {
+Trajet trajet_raccourcir(Trajet trajet, char* gare_finale) {
     if (!trajet || !gare_finale) return NULL;
 
     for (int i = 0; i < trajet->nombre_gares; i++) {
@@ -124,7 +126,7 @@ Trajet* trajet_raccourcir(Trajet* trajet, const char* gare_finale) {
 }
 
 // Gestion des fichiers
-void trajet_sauvegarder(const Trajet* trajet, const char* nom_fichier) {
+void trajet_sauvegarder(Trajet trajet, char* nom_fichier) {
     FILE* fichier = fopen(nom_fichier, "w");
     
     if (!fichier || !trajet) {
@@ -145,5 +147,37 @@ void trajet_sauvegarder(const Trajet* trajet, const char* nom_fichier) {
     fclose(fichier);
 }
 
-Trajet* trajet_charger(const char* nom_fichier) {
-   FILE *fp=
+Trajet trajet_charger(char* nom_fichier) {
+   FILE *fp=   fopen(nom_fichier, "r");
+    if (!fp) {
+        fprintf(stderr, "Erreur : impossible d'ouvrir le fichier %s.\n", nom_fichier);
+        return NULL;
+    }
+
+    Trajet trajet = trajet_init();
+    fscanf(fp, "%s\n%s\n%f\n%d\n", 
+           trajet->gare_depart, 
+           trajet->gare_arrivee, 
+           &trajet->duree, 
+           &trajet->nombre_gares);
+
+    trajet->liste_gares = malloc(trajet->nombre_gares * sizeof(char*));
+    if (!trajet->liste_gares) {
+        fprintf(stderr, "Erreur : allocation mémoire pour charger les gares.\n");
+        fclose(fp);
+        return NULL;
+    }
+
+    for (int i = 0; i < trajet->nombre_gares; i++) {
+        trajet->liste_gares[i] = malloc(MAX_NOM_VILLE * sizeof(char));
+        if (fscanf(fp, "%s\n", trajet->liste_gares[i]) != 1) {
+            fprintf(stderr, "Erreur : lecture de la gare échouée.\n");
+            free(trajet->liste_gares[i]);
+            fclose(fp);
+            return NULL;
+        }
+    }
+
+    fclose(fp);
+    return trajet;
+}
