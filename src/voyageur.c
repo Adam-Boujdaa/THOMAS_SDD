@@ -71,7 +71,7 @@ int voyageur_modifier_trajet(Voyageur voyageur, Trajet ancien, Trajet nouveau, P
 int trajet_places_disponibles(Trajet trajet, Place* places, int nb_places) {
     int compteur = 0;
     for (int i = 0; i < nb_places; i++) {
-        if (place_get_trajet(places[i]) == trajet && place_est_libre(places[i])) {
+        if (place_get_trajet(places[i]) == trajet && !place_est_reservee(places[i])) {
             compteur++;
         }
     }

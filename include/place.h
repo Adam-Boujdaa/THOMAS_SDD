@@ -1,6 +1,3 @@
-#ifndef PLACE_H
-#define PLACE_H
-
 #include <stdlib.h>
 
 // Structure représentant une place
@@ -11,15 +8,13 @@ typedef struct {
 } Place;
 
 // Initialise une place avec un numéro de siège et un wagon donnés, et définit isReserved à 0
-Place creer_place(int num_siege, char* voiture);
+Place place_creer(int num_siege, char* voiture);
 
 // Réserve la place
-void reserver_place(Place* place);
+void place_reserver(Place* place);
 
 // Annule la réservation de la place
-void annuler_reservation(Place* place);
+void place_annuler_reservation(Place* place);
 
 // Vérifie si la place est réservée (1 pour réservé, 0 pour non réservé)
-int est_reservee(const Place* place);
-
-#endif // PLACE_H
+int place_est_reservee(const Place* place);
