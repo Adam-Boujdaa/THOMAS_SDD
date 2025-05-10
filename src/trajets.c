@@ -13,13 +13,18 @@ struct s_trajet {
     float duree; // Durée totale du trajet en heures
     char** liste_gares; // Liste des gares intermédiaires (tableau dynamique de chaînes)
     int nombre_gares; // Nombre de gares intermédiaires
+    int nombre_places; // Nombre de places disponibles
+    int nombre_reservations; // Nombre de réservations effectuées
+    int* places; // Tableau des places 0 = non resérvées, 1 = réservées
+    int id_trajet; // Identifiant unique du trajet
 };
 
-// Constructeur
-Trajet trajet_init() {
-    Trajet trajet = (Trajet)malloc(sizeof(struct s_trajet));
+
+// Constructeur 
+Trajet trajet_init(int id_trajet, int nombre_places) {
+    Trajet trajet = malloc(sizeof(struct s_trajet));
     if (!trajet) {
-        fprintf(stderr, "Erreur : allocation mémoire pour le trajet.\n");
+        fprintf(stderr, "Erreur d'allocation mémoire pour le trajet.\n");
         exit(EXIT_FAILURE);
     }
     trajet->gare_depart[0] = '\0';
@@ -27,8 +32,16 @@ Trajet trajet_init() {
     trajet->duree = 0.0;
     trajet->liste_gares = NULL;
     trajet->nombre_gares = 0;
+    trajet->nombre_places = nombre_places;
+    trajet->nombre_reservations = 0;
+    trajet->places = malloc(nombre_places* sizeof(int));
+    for (int i = 0; i < nombre_places; i++) {
+        trajet->places[i] = 0;    // 0 = non réservé, 1 = réservé
+    }
+    trajet->id_trajet = id_trajet;
     return trajet;
 }
+
 
 // Gestion des gares dans un trajet
 void trajet_ajouter_gare(Trajet trajet, char* nom_gare, float temps_depuis_depart) {
@@ -125,6 +138,24 @@ Trajet trajet_raccourcir(Trajet trajet, char* gare_finale) {
     return trajet;
 }
 
+
+//places libres 
+int trajet_places_libres(Trajet trajet) {
+    int libres = 0;
+    for (int i = 0; i < trajet->nombre_places; i++) {
+        if (trajet->places[i] == 0) { // 0 = non réservée
+            libres++;
+        }
+    }
+    return libres;
+}
+
+int trajet_est_complet(Trajet trajet) {
+    return trajet_places_libres(trajet) == 0;
+}
+
+
+
 // Gestion des fichiers
 void trajet_sauvegarder(Trajet trajet, char* nom_fichier) {
     FILE* fichier = fopen(nom_fichier, "w");
@@ -181,3 +212,5 @@ Trajet trajet_charger(char* nom_fichier) {
     fclose(fp);
     return trajet;
 }
+
+
