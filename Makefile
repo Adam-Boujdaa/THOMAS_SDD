@@ -13,7 +13,7 @@ all:
 	$(MAKE) run -s
 
 compile:
-	@$(CC) $(CFLAGS) -I $(INCLUDE) -c $(SRC) $(LIBFLAGS)
+	@$(CC) $(CFLAGS) -I$(INCLUDE) -c $(SRC) $(LIBFLAGS)
 	@$(MOVE) *.o $(LIB)
 	@$(CC) $(CFLAGS) -o $(EXC) $(LIB)*.o $(LIBFLAGS)
 

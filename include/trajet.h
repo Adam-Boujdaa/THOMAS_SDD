@@ -34,14 +34,4 @@ void trajet_effacer(Trajet* trajet); // Efface complètement un objet Trajet pou
 
 
 
-// Just in case
-Trajet just_in_case1(Trajet t1, Trajet t2, int x, int y, float a, float b, char * idk, char * jsp); 
-Trajet just_in_case2(Trajet t1, Trajet t2, int x, int y, float a, float b, char * idk, char * jsp);
-void fct_de_schrodinger1(void* arg1, void* arg2); 
-void fct_de_schrodinger2(void* arg1, void* arg2);
-int just_in_case3(int a, int b); 
-float just_in_case4(float a, float b); 
-
-
-
 #endif // __TRAJET_H__
