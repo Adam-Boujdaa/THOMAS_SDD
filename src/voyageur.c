@@ -123,35 +123,6 @@ void voyageur_afficher_reservations(Voyageur voyageur) {
 Voyageur voyageurs[MAX_VOYAGEURS];
 int nombre_voyageurs = 0;
 
-// Fonction de création de compte
-int creer_compte(const char* nom, int identifiant, const char* mot_de_passe) {
-    // Vérifier si le nombre maximum de voyageurs a été atteint
-    if (nombre_voyageurs >= MAX_VOYAGEURS) {
-        printf("Le nombre maximum de comptes a été atteint.\n");
-        return 0;
-    }
-
-    // Vérifier si l'identifiant est déjà utilisé
-    for (int i = 0; i < nombre_voyageurs; i++) {
-        if (voyageurs[i]->identifiant == identifiant) {
-            printf("L'identifiant est déjà utilisé.\n");
-            return 0;
-        }
-    }
-
-    // Créer un nouveau voyageur
-    Voyageur v = voyageur_init(nom, identifiant, mot_de_passe);
-    if (!v) {
-        printf("Erreur lors de la création du compte.\n");
-        return 0;
-    }
-
-    // Ajouter le voyageur à la liste
-    voyageurs[nombre_voyageurs++] = v;
-    printf("Compte créé avec succès.\n");
-    return 1;
-}
-
 
 int creer_compte(const char* nom, int identifiant, const char* mot_de_passe) {
     // Vérifier si le nombre maximum de voyageurs a été atteint
