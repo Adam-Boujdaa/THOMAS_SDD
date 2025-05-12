@@ -1,41 +1,58 @@
 #ifndef VOYAGEUR_H
 #define VOYAGEUR_H
 
-#include "trajet.h"
-#include "place.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "trajet.h"  // Inclusion de l'entête pour le type Trajet
+#include <openssl/sha.h>  // Bibliothèque pour SHA256
 
-#define MAX_RESERVATIONS 50
 #define TAILLE_NOM 100
-#define MAX_VOYAGEURS 100 // Nombre maximum de voyageurs
+#define TAILLE_MOT_DE_PASSE 64
+#define MAX_RESERVATIONS 10
+#define MAX_VOYAGEURS 100
 
-// Structure représentant un voyageur
+// Déclaration opaque de la structure Voyageur
 typedef struct s_voyageur* Voyageur;
 
-// Fonction pour créer un voyageur
-Voyageur voyageur_init(const char* nom, int identifiant);
+// Fonction pour hacher un mot de passe avec SHA256
+void hacher_mot_de_passe(const char* mot_de_passe, char* mot_de_passe_hash);
 
-// Fonction pour effacer un voyageur
+// Initialiser un voyageur avec un nom, un identifiant et un mot de passe
+Voyageur voyageur_init(const char* nom, int identifiant, const char* mot_de_passe);
+
+// Supprimer un voyageur
 void voyageur_effacer(Voyageur* voyageur);
 
-// Fonction pour obtenir l'identifiant d'un voyageur
+// Récupérer l'identifiant d'un voyageur
 int voyageur_get_identifiant(Voyageur v);
 
-// Fonction pour obtenir le nom d'un voyageur
+// Récupérer le nom d'un voyageur
 const char* voyageur_get_nom(Voyageur v);
 
-// Fonction pour rechercher un voyageur par identifiant
+// Vérifier le mot de passe lors de la connexion
+int voyageur_verifier_mot_de_passe(Voyageur v, const char* mot_de_passe);
+
+// Rechercher un voyageur par identifiant
 Voyageur voyageur_rechercher_par_id(int identifiant, Voyageur* liste, int taille);
 
-// Fonction pour réserver un trajet
+// Ajouter une réservation pour un voyageur
 int voyageur_reserver_trajet(Voyageur voyageur, Trajet trajet);
 
-// Fonction pour modifier un trajet réservé
+// Modifier une réservation de trajet
 int voyageur_modifier_trajet(Voyageur voyageur, Trajet ancien, Trajet nouveau);
 
-// Fonction pour afficher les réservations d'un voyageur
+// Afficher les réservations d'un voyageur
 void voyageur_afficher_reservations(Voyageur voyageur);
 
-// Fonction pour afficher le menu principal
-void menu_principal(Voyageur* liste_voyageurs, int* nb_voyageurs, Trajet* liste_trajets, int nb_trajets);
+// Tableau des voyageurs enregistrés
+extern Voyageur voyageurs[MAX_VOYAGEURS];
+extern int nombre_voyageurs;
 
-#endif // VOYAGEUR_H
+// Fonction de création de compte
+int creer_compte(const char* nom, int identifiant, const char* mot_de_passe);
+
+// Fonction de connexion
+Voyageur connexion(int identifiant, const char* mot_de_passe);
+
+#endif  // VOYAGEUR_H
