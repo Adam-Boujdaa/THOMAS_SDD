@@ -1,64 +1,67 @@
-#include "voyageur.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#define MAX_RESERVATIONS 50
-#define TAILLE_NOM 100
+#include "voyageur.h"
 
 struct s_voyageur {
     char nom[TAILLE_NOM];
     int identifiant;
-    Trajet* trajets_reserves;
+    Trajet trajets_reserves[MAX_RESERVATIONS];
     int nombre_reservations;
 };
 
-// Création d'un voyageur
 Voyageur voyageur_init(const char* nom, int identifiant) {
     Voyageur v = malloc(sizeof(struct s_voyageur));
     if (!v) return NULL;
-    strncpy(v->nom, nom, TAILLE_NOM-1);
-    v->nom[TAILLE_NOM-1] = '\0';
+    strncpy(v->nom, nom, TAILLE_NOM - 1);
+    v->nom[TAILLE_NOM - 1] = '\0';
     v->identifiant = identifiant;
-    v->trajets_reserves = malloc(MAX_RESERVATIONS * sizeof(Trajet));
     v->nombre_reservations = 0;
     return v;
 }
 
-// Destruction d'un voyageur
 void voyageur_effacer(Voyageur* voyageur) {
     if (*voyageur) {
-        free((*voyageur)->trajets_reserves);
         free(*voyageur);
         *voyageur = NULL;
     }
 }
 
-// Recherche d'un voyageur par identifiant
+int voyageur_get_identifiant(Voyageur v) {
+    return v->identifiant;
+}
+
+const char* voyageur_get_nom(Voyageur v) {
+    return v->nom;
+}
+
 Voyageur voyageur_rechercher_par_id(int identifiant, Voyageur* liste, int taille) {
     for (int i = 0; i < taille; i++) {
-        if (liste[i]->identifiant == identifiant) {
+        if (liste[i] && liste[i]->identifiant == identifiant) {
             return liste[i];
         }
     }
     return NULL;
 }
 
-// Réservation de trajet
-int voyageur_reserver_trajet(Voyageur voyageur, Trajet trajet, Place* places, int nb_places) {
-    if (voyageur->nombre_reservations >= MAX_RESERVATIONS) return 0;
-    if (trajet_places_disponibles(trajet, places, nb_places) > 0) {
-        voyageur->trajets_reserves[voyageur->nombre_reservations++] = trajet;
-        return 1;
-    }
-    return 0;
+int voyageur_reserver_trajet(Voyageur voyageur, Trajet trajet) {
+    if (!voyageur || !trajet || voyageur->nombre_reservations >= MAX_RESERVATIONS) return 0;
+    if (trajet_places_libres(trajet) <= 0) return 0;
+
+    int num_place = trajet_reserver_place(trajet);
+    if (num_place == -1) return 0;
+
+    voyageur->trajets_reserves[voyageur->nombre_reservations++] = trajet;
+    return 1;
 }
 
-// Modification de trajet
-int voyageur_modifier_trajet(Voyageur voyageur, Trajet ancien, Trajet nouveau, Place* places, int nb_places) {
+int voyageur_modifier_trajet(Voyageur voyageur, Trajet ancien, Trajet nouveau) {
     for (int i = 0; i < voyageur->nombre_reservations; i++) {
         if (voyageur->trajets_reserves[i] == ancien) {
-            if (trajet_places_disponibles(nouveau, places, nb_places) > 0) {
+            if (trajet_places_libres(nouveau) > 0) {
+                trajet_annuler_place(ancien, 0); // Numéro de place à gérer correctement
+                trajet_reserver_place(nouveau);
                 voyageur->trajets_reserves[i] = nouveau;
                 return 1;
             }
@@ -67,69 +70,115 @@ int voyageur_modifier_trajet(Voyageur voyageur, Trajet ancien, Trajet nouveau, P
     return 0;
 }
 
-// verif du nombre de places disponibles pour un trajet
-int trajet_places_disponibles(Trajet trajet, Place* places, int nb_places) {
-    int compteur = 0;
-    for (int i = 0; i < nb_places; i++) {
-        if (place_get_trajet(places[i]) == trajet && !place_est_reservee(places[i])) {
-            compteur++;
+void voyageur_afficher_reservations(Voyageur voyageur) {
+    printf("\n--- Réservations de %s ---\n", voyageur->nom);
+    if (voyageur->nombre_reservations == 0) {
+        printf("Aucune réservation.\n");
+    } else {
+        for (int i = 0; i < voyageur->nombre_reservations; i++) {
+            printf("Réservation %d :\n", i + 1);
+            trajet_afficher(voyageur->trajets_reserves[i]);
         }
     }
-    return compteur;
 }
 
-// Menu voyageur (exemple, à adapter à tes besoins)
-void menu_voyageur(Voyageur* liste_voyageurs, int nb_voyageurs, Trajet* liste_trajets, int nb_trajets, Place* places, int nb_places) {
-    int choix, identifiant, id_trajet, i;
-    char depart[50], arrivee[50];
+void menu_principal(Voyageur* liste_voyageurs, int* nb_voyageurs, Trajet* liste_trajets, int nb_trajets) {
+    int choix;
+    Voyageur utilisateur_connecte = NULL;
 
     do {
-        printf("\n=== Menu Voyageur ===\n");
-        printf("1. Rechercher par gares\n");
-        printf("2. Réserver un trajet\n");
-        printf("3. Modifier une réservation\n");
-        printf("4. Quitter\n");
+        printf("\n=== MENU PRINCIPAL ===\n");
+        printf("1. Se connecter\n");
+        printf("2. Créer un compte\n");
+        printf("3. Quitter\n");
+        printf("Choix : ");
         scanf("%d", &choix);
 
         if (choix == 1) {
-            printf("Gare de départ : ");
-            scanf("%s", depart);
-            printf("Gare d'arrivée : ");
-            scanf("%s", arrivee);
-            for (i = 0; i < nb_trajets; i++) {
-                const char* gare_depart = trajet_get_depart(liste_trajets[i]);
-                const char* gare_arrivee = trajet_get_arrivee(liste_trajets[i]);
-                if (strcmp(gare_depart, depart) == 0 && strcmp(gare_arrivee, arrivee) == 0) {
-                    printf("Trajet trouvé : %d\n", trajet_get_id(liste_trajets[i]));
-                }
-            }
-        } else if (choix == 2) {
-            printf("ID voyageur : ");
-            scanf("%d", &identifiant);
-            Voyageur v = voyageur_rechercher_par_id(identifiant, liste_voyageurs, nb_voyageurs);
-            if (v) {
-                printf("ID trajet à réserver : ");
-                scanf("%d", &id_trajet);
-                Trajet trajet_trouve = NULL;
-                for (i = 0; i < nb_trajets; i++) {
-                    if (trajet_get_id(liste_trajets[i]) == id_trajet) {
-                        trajet_trouve = liste_trajets[i];
+            int id;
+            printf("Entrez votre identifiant : ");
+            scanf("%d", &id);
+            utilisateur_connecte = voyageur_rechercher_par_id(id, liste_voyageurs, *nb_voyageurs);
+            if (utilisateur_connecte) {
+                printf("Connexion réussie. Bonjour %s !\n", utilisateur_connecte->nom);
+                int choix_utilisateur;
+                do {
+                    printf("\n=== MENU VOYAGEUR ===\n");
+                    printf("1. Réserver un trajet\n");
+                    printf("2. Modifier une réservation\n");
+                    printf("3. Voir mes réservations\n");
+                    printf("4. Supprimer mon compte\n");
+                    printf("5. Se déconnecter\n");
+                    printf("Choix : ");
+                    scanf("%d", &choix_utilisateur);
+
+                    if (choix_utilisateur == 1) {
+                        printf("Liste des trajets disponibles :\n");
+                        for (int i = 0; i < nb_trajets; i++) {
+                            printf("ID: %d\n", trajet_get_id(liste_trajets[i]));
+                            trajet_afficher(liste_trajets[i]);
+                        }
+                        int id_trajet;
+                        printf("Entrez l'ID du trajet à réserver : ");
+                        scanf("%d", &id_trajet);
+                        for (int i = 0; i < nb_trajets; i++) {
+                            if (trajet_get_id(liste_trajets[i]) == id_trajet) {
+                                if (voyageur_reserver_trajet(utilisateur_connecte, liste_trajets[i])) {
+                                    printf("Réservation réussie.\n");
+                                } else {
+                                    printf("Réservation échouée.\n");
+                                }
+                                break;
+                            }
+                        }
+                    } else if (choix_utilisateur == 2) {
+                        printf("Fonction de modification à implémenter.\n");
+                    } else if (choix_utilisateur == 3) {
+                        voyageur_afficher_reservations(utilisateur_connecte);
+                    } else if (choix_utilisateur == 4) {
+                        for (int i = 0; i < *nb_voyageurs; i++) {
+                            if (liste_voyageurs[i] == utilisateur_connecte) {
+                                voyageur_effacer(&liste_voyageurs[i]);
+                                for (int j = i; j < *nb_voyageurs - 1; j++) {
+                                    liste_voyageurs[j] = liste_voyageurs[j + 1];
+                                }
+                                (*nb_voyageurs)--;
+                                utilisateur_connecte = NULL;
+                                printf("Compte supprimé.\n");
+                                break;
+                            }
+                        }
                         break;
                     }
-                }
-                if (trajet_trouve) {
-                    if (voyageur_reserver_trajet(v, trajet_trouve, places, nb_places)) {
-                        printf("Réservation réussie !\n");
-                    } else {
-                        printf("Réservation impossible (plus de places ou max atteint).\n");
-                    }
-                } else {
-                    printf("Trajet non trouvé.\n");
-                }
+                } while (choix_utilisateur != 5 && utilisateur_connecte);
+                utilisateur_connecte = NULL;
             } else {
-                printf("Voyageur non trouvé.\n");
+                printf("Identifiant inconnu.\n");
+            }
+        } else if (choix == 2) {
+            if (utilisateur_connecte) {
+                printf("Déconnectez-vous avant de créer un autre compte.\n");
+            } else {
+                if (*nb_voyageurs >= 100) {
+                    printf("Nombre maximum de voyageurs atteint.\n");
+                    continue;
+                }
+                char nom[TAILLE_NOM];
+                int id;
+                printf("Entrez votre nom : ");
+                scanf("%s", nom);
+                printf("Choisissez un identifiant numérique : ");
+                scanf("%d", &id);
+                if (voyageur_rechercher_par_id(id, liste_voyageurs, *nb_voyageurs)) {
+                    printf("Identifiant déjà utilisé.\n");
+                } else {
+                    Voyageur nouveau = voyageur_init(nom, id);
+                    liste_voyageurs[*nb_voyageurs] = nouveau;
+                    (*nb_voyageurs)++;
+                    printf("Compte créé. Connectez-vous pour continuer.\n");
+                }
             }
         }
-        // À compléter pour les autres choix
-    } while (choix != 4);
+    } while (choix != 3);
 }
+
