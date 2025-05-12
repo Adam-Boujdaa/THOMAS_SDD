@@ -155,6 +155,115 @@ int trajet_est_complet(Trajet trajet) {
 }
 
 
+// Réserve la première place disponible, retourne son numéro ou -1 si complet
+int trajet_reserver_place(Trajet trajet) {
+    for (int i = 0; i < trajet->nombre_places; i++) {
+        if (trajet->places[i] == 0) {
+            trajet->places[i] = 1;
+            trajet->nombre_reservations++;
+            return i;
+        }
+    }
+    return -1;
+}
+
+
+// Annule la réservation d'une place donnée (numéro de place)
+void trajet_annuler_place(Trajet trajet, int num_place) {
+    if (num_place >= 0 && num_place < trajet->nombre_places && trajet->places[num_place] == 1) {
+        trajet->places[num_place] = 0;
+        trajet->nombre_reservations--;
+    }
+}
+
+
+void trajet_afficher_places_libres(Trajet trajet) {
+    printf("Places libres pour le trajet %d : ", trajet->id_trajet);
+    for (int i = 0; i < trajet->nombre_places; i++) {
+        if (trajet->places[i] == 0) {
+            printf("%d ", i);
+        }
+    }
+    printf("\n");
+}
+
+
+void trajet_effacer(Trajet* ptr) {
+    if (!ptr || !*ptr) return;
+    Trajet trajet = *ptr;
+    for (int i = 0; i < trajet->nombre_gares; i++) {
+        free(trajet->liste_gares[i]);
+    }
+    free(trajet->liste_gares);
+    free(trajet->places);
+    free(trajet);
+    *ptr = NULL;
+}
+
+
+void trajet_afficher_places_reservees(Trajet trajet) {
+    printf("Places réservées pour le trajet %d : ", trajet->id_trajet);
+    for (int i = 0; i < trajet->nombre_places; i++) {
+        if (trajet->places[i] == 1) {
+            printf("%d ", i);
+        }
+    }
+    printf("\n");
+}
+
+
+void trajet_reinitialiser_reservations(Trajet trajet) {
+    for (int i = 0; i < trajet->nombre_places; i++) {
+        trajet->places[i] = 0;
+    }
+    trajet->nombre_reservations = 0;
+}
+
+
+void trajet_afficher(Trajet trajet) {
+    printf("Trajet %d : %s -> %s\n", trajet->id_trajet, trajet->gare_depart, trajet->gare_arrivee);
+    printf("Durée : %.2f h\n", trajet->duree);
+    printf("Gares intermédiaires (%d) : ", trajet->nombre_gares);
+    for (int i = 0; i < trajet->nombre_gares; i++) {
+        printf("%s ", trajet->liste_gares[i]);
+    }
+    printf("\nPlaces libres : %d / %d\n", trajet_places_libres(trajet), trajet->nombre_places);
+    trajet_afficher_places_libres(trajet);
+    trajet_afficher_places_reservees(trajet);
+}
+
+
+
+// Recherche d'un trajet entre deux gares
+Trajet trajet_rechercher(char* gare_depart, char* gare_arrivee) {
+    // Cette fonction pourrait être utilisée pour rechercher un trajet entre deux gares.
+    // Implémentation dépendante des besoins.
+    return NULL;
+}
+// Calcul de la durée totale du trajet
+float trajet_duree_totale(Trajet trajet) {
+    if (!trajet) return 0.0;
+    return trajet->duree;
+}
+// Vérifie si le trajet est vide
+int trajet_est_vide(Trajet trajet) {
+    return trajet->nombre_gares == 0 && trajet->duree == 0.0;
+}
+// Retourne le nombre de gares dans le trajet
+int trajet_nombre_gares(Trajet trajet) {
+    return trajet->nombre_gares;
+}
+
+//Vérifie si le trajet est complet
+int trajet_est_complet(Trajet trajet) {
+    return trajet->nombre_reservations == trajet->nombre_places;
+}
+
+//Retourne l'ID du trajet
+int trajet_get_id(Trajet trajet) {
+    return trajet->id_trajet;
+}
+
 
 // Gestion des fichiers
 void trajet_sauvegarder(Trajet trajet, char* nom_fichier) {
