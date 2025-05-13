@@ -25,7 +25,6 @@ Trajet trajet_charger(char* nom_fichier); // Charge un trajet depuis un fichier
 void trajet_afficher(Trajet trajet); // Affiche les détails d'un trajet
 Trajet trajet_rechercher(char* gare_depart, char* gare_arrivee); // Recherche un trajet entre deux gares
 
-
 // Fonctions probablement pratiques
 int trajet_nombre_gares(Trajet trajet); // Retourne le nombre de gares dans le trajet
 float trajet_duree_totale(Trajet trajet); // Calcule la durée totale du trajet
@@ -38,17 +37,10 @@ int trajet_reserver_place(Trajet trajet); // Réserve une place et retourne son 
 void trajet_annuler_place(Trajet trajet, int num_place); // Annule la réservation d'une place
 void trajet_afficher_places_libres(Trajet trajet); // Affiche les places libres
 void trajet_afficher_places_reservees(Trajet trajet); // Affiche les places réservées
-void trajet_effacer(Trajet* ptr); // Efface un trajet et libère la mémoire
 void trajet_reinitialeser_reservations(Trajet trajet); // Réinitialise les réservations d'un trajet
-void trajet_afficher(Trajet trajet); // Affiche les détails d'un trajet
 
 //Fonctions pour afficher un detail specifique d'un trajet (pr la confidentialite des structures dans main et .h)
-Trajet trajet_rechercher(char* gare_depart, char* gare_arrivee); // Recherche un trajet entre deux gares
-float trajet_duree_totale(Trajet trajet); // Calcule la durée totale du trajet
-int trajet_est_vide(Trajet trajet); // Vérifie si le trajet est vide
-int trajet_nombre_gares(Trajet trajet); // Retourne le nombre de gares dans le trajet
 int trajet_est_complet(Trajet trajet); // Vérifie si le trajet est complet
 int trajet_get_id(Trajet trajet); // Retourne l'ID du trajet
-
 
 #endif // __TRAJET_H__

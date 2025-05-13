@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "voyageur.h"
-#include "trajets.h"
+#include "trajet.h"
 #include "json.h"  // Include json-parser library
 
 // Structure to hold our voyageur database
@@ -175,30 +175,26 @@ void export_voyageurs_to_json(VoyageurDB* db, int trajet_id, const char* filenam
            count, trajet_id, filename);
 }
 
-int main(int argc, char* argv[]) {
-    // Check command line arguments
-    if (argc != 3) {
-        printf("Usage: %s <trajet_id> <output_file.json>\n", argv[0]);
-        return 1;
-    }
-    
-    // Parse trajet_id
-    int trajet_id = atoi(argv[1]);
-    if (trajet_id <= 0) {
-        fprintf(stderr, "Invalid trajet ID: %s\n", argv[1]);
-        return 1;
-    }
-    
-    const char* output_file = argv[2];
-    
-    // Load voyageur database
-    VoyageurDB* db = load_voyageurs();
-    
-    // Export voyageurs to JSON
-    export_voyageurs_to_json(db, trajet_id, output_file);
-    
+#include <stdio.h>
+#include "trajet.h"
+#include "json.h"
+
+int main() {
+    // Initialize a sample Trajet
+    Trajet trajet = trajet_init();
+    trajet_ajouter_gare(trajet, "Gare A", 0.0);
+    trajet_ajouter_gare(trajet, "Gare B", 1.5);
+    trajet_ajouter_gare(trajet, "Gare C", 3.0);
+
+    // Export the Trajet to a JSON file
+    const char* filename = "test_trajet.json";
+    trajet_sauvegarder(trajet, filename);
+
+    // Inform the user
+    printf("Trajet exported to %s\n", filename);
+
     // Clean up
-    free_voyageur_db(db);
-    
+    trajet_effacer(&trajet);
+
     return 0;
-} 
+}

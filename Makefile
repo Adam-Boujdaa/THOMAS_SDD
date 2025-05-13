@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -g -ggdb -std=c99
+CFLAGS = -Wall -g -ggdb -std=c99 -Iinclude/ -Ilib/
 LIBFLAGS = 
 INCLUDE = include/
 SRC = $(wildcard src/*.c)
@@ -22,3 +22,7 @@ run:
 
 clean:
 	rm $(BIN) $(LIB)*
+
+test: compile
+	@$(CC) $(CFLAGS) -I$(INCLUDE) -o ./bin/test_export src/export_voyageurs.c $(LIB)*.o $(LIBFLAGS)
+	@./bin/test_export
