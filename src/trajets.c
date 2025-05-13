@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "trajet.h"
+#include "cJSON.h"
 
 #define strdup(s) ({ \
     const char *_s = (s); \
@@ -304,6 +305,100 @@ Trajet trajet_fusionner(Trajet trajet1, Trajet trajet2) {
     fusion->duree = trajet1->duree + trajet2->duree;
 
     return fusion;
+}
+
+// Function to load trajets from a JSON file
+Trajet* charger_trajets(const char* fichier_json, int* nombre_trajets) {
+    FILE* fichier = fopen(fichier_json, "r");
+    if (!fichier) {
+        fprintf(stderr, "Erreur : Impossible d'ouvrir le fichier %s\n", fichier_json);
+        return NULL;
+    }
+
+    // Lire le fichier entier dans un buffer
+    fseek(fichier, 0, SEEK_END);
+    long taille_fichier = ftell(fichier);
+    rewind(fichier);
+
+    char* buffer = (char*)malloc(taille_fichier + 1);
+    if (!buffer) {
+        fprintf(stderr, "Erreur : Mémoire insuffisante pour lire le fichier\n");
+        fclose(fichier);
+        return NULL;
+    }
+
+    fread(buffer, 1, taille_fichier, fichier);
+    buffer[taille_fichier] = '\0';
+    fclose(fichier);
+
+    // Parser les données JSON
+    cJSON* json = cJSON_Parse(buffer);
+    free(buffer);
+
+    if (!json) {
+        fprintf(stderr, "Erreur : Échec de l'analyse du fichier JSON\n");
+        return NULL;
+    }
+
+    cJSON* trajets_array = cJSON_GetObjectItem(json, "trajets");
+    if (!cJSON_IsArray(trajets_array)) {
+        fprintf(stderr, "Erreur : Le fichier JSON ne contient pas de tableau de trajets\n");
+        cJSON_Delete(json);
+        return NULL;
+    }
+
+    *nombre_trajets = cJSON_GetArraySize(trajets_array);
+    Trajet* trajets = (Trajet*)malloc(*nombre_trajets * sizeof(Trajet));
+    if (!trajets) {
+        fprintf(stderr, "Erreur : Mémoire insuffisante pour les trajets\n");
+        cJSON_Delete(json);
+        return NULL;
+    }
+
+    for (int i = 0; i < *nombre_trajets; i++) {
+        cJSON* trajet_json = cJSON_GetArrayItem(trajets_array, i);
+        cJSON* gare_depart = cJSON_GetObjectItem(trajet_json, "gare_depart");
+        cJSON* gare_arrivee = cJSON_GetObjectItem(trajet_json, "gare_arrivee");
+        cJSON* duree = cJSON_GetObjectItem(trajet_json, "duree");
+        cJSON* nombre_places = cJSON_GetObjectItem(trajet_json, "nombre_places");
+        cJSON* nombre_reservations = cJSON_GetObjectItem(trajet_json, "nombre_reservations");
+        cJSON* liste_gares = cJSON_GetObjectItem(trajet_json, "liste_gares");
+
+        if (cJSON_IsString(gare_depart) && cJSON_IsString(gare_arrivee) && cJSON_IsNumber(duree) &&
+            cJSON_IsNumber(nombre_places) && cJSON_IsNumber(nombre_reservations) && cJSON_IsArray(liste_gares)) {
+
+            strncpy(trajets[i].gare_depart, gare_depart->valuestring, MAX_NOM_VILLE - 1);
+            trajets[i].gare_depart[MAX_NOM_VILLE - 1] = '\0';
+
+            strncpy(trajets[i].gare_arrivee, gare_arrivee->valuestring, MAX_NOM_VILLE - 1);
+            trajets[i].gare_arrivee[MAX_NOM_VILLE - 1] = '\0';
+
+            trajets[i].duree = (float)duree->valuedouble;
+            trajets[i].nombre_places = nombre_places->valueint;
+            trajets[i].nombre_reservations = nombre_reservations->valueint;
+
+            int nombre_gares = cJSON_GetArraySize(liste_gares);
+            trajets[i].nombre_gares = nombre_gares;
+            trajets[i].liste_gares = (char**)malloc(nombre_gares * sizeof(char*));
+
+            for (int j = 0; j < nombre_gares; j++) {
+                cJSON* gare = cJSON_GetArrayItem(liste_gares, j);
+                if (cJSON_IsString(gare)) {
+                    trajets[i].liste_gares[j] = strdup(gare->valuestring);
+                }
+            }
+
+            trajets[i].places = (int*)malloc(trajets[i].nombre_places * sizeof(int));
+            for (int k = 0; k < trajets[i].nombre_places; k++) {
+                trajets[i].places[k] = 0; // Initialiser toutes les places comme non réservées
+            }
+
+            trajets[i].id_trajet = i + 1; // Générer un identifiant unique pour chaque trajet
+        }
+    }
+
+    cJSON_Delete(json);
+    return trajets;
 }
 
 

@@ -1,0 +1,29 @@
+Menu example:
+
+
+Connectez-vous en tant que:
+1) Administrateur
+2) Controleur
+3) Utilisateur
+
+OU
+
+4) Creer un compte
+
+1 => ask for password and check against .env file -> if correct 
+   (1) Gestion des trajets : ajouter, modifier, supprimer des trajets et ajouter/supprimer des gares
+   (2) Exportation des trajets et des voyageurs enregistrés au format JSON
+   (3) Administration : changer le mot de passe d’une personne enregistrée (le mot de passe devra être chiffré)
+   if incorrect -> try again
+
+
+2 => ask for password and check against .env file -> if correct
+   (4) Recherche : rechercher le trajet du voyageur avec son numéro d’identification
+   (5) Administration : changer son mot de passe ou ses coordonnées (qui devra être chiffré).
+
+3 => ask for password and username check against user hash -> if correct
+   (6) Recherche et Choix d’un trajet en donnant les gares de départ et d’arrivée du trajet souhaité
+   (7) Réservation/Modification d’un trajet
+
+4 => allow creation of account then go to 6 and 7
+

@@ -67,4 +67,7 @@ void trajet_reinitialeser_reservations(Trajet trajet); // Réinitialise les rés
 int trajet_est_complet(Trajet trajet); // Vérifie si le trajet est complet
 int trajet_get_id(Trajet trajet); // Retourne l'ID du trajet
 
+
+Trajet charger_trajets(const char* fichier_json, int* nombre_trajets);
+
 #endif // __TRAJET_H__
