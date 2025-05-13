@@ -1,11 +1,36 @@
 #ifndef __TRAJET_H__
 #define __TRAJET_H__
 
-// Définir la structure
+
+#define MAX_TRAJETS 100
+#define MAX_NOM_VILLE 85 // Longueur maximale du nom d'une ville en France
+
+// Définition de la structure Trajet
+struct s_trajet {
+    char gare_depart[MAX_NOM_VILLE]; // Nom de la gare de départ
+    char gare_arrivee[MAX_NOM_VILLE]; // Nom de la gare d'arrivée
+    float duree; // Durée totale du trajet en heures
+    char** liste_gares; // Liste des gares intermédiaires (tableau dynamique de chaînes)
+    int nombre_gares; // Nombre de gares intermédiaires
+    int nombre_places; // Nombre de places disponibles
+    int nombre_reservations; // Nombre de réservations effectuées
+    int* places; // Tableau des places 0 = non resérvées, 1 = réservées
+    int id_trajet; // Identifiant unique du trajet
+};
+
 typedef struct s_trajet * Trajet;
 
+// Define a struct to manage the database of Trajet pointers
+typedef struct s_trajetDB {
+    Trajet trajets[MAX_TRAJETS];
+    int nombre_trajets;
+} TrajetDB;
+
+// Declare the TrajetDB instance as an external variable
+extern TrajetDB trajetDB;
+
 // Constructeur
-Trajet trajet_init(); // Crée et initialise un trajet vide
+Trajet trajet_init(int, int); // Crée et initialise un trajet vide
 
 // Opérateurs : Gestion des gares dans un trajet
 void trajet_ajouter_gare(Trajet trajet, char* nom_gare, float temps_depuis_depart); // Ajoute une gare au trajet
@@ -13,7 +38,6 @@ void trajet_supprimer_gare(Trajet trajet, char* nom_gare); // Supprime une gare 
 void trajet_modifier_temps(Trajet trajet, char* nom_gare, float nouveau_temps); // Modifie le temps d'arrivée à une gare
 
 // Opérateurs : Manipulation des trajets
-Trajet trajet_fusionner(Trajet trajet1, Trajet trajet2); // Fusionne deux trajets
 Trajet trajet_prolonger(Trajet trajet, char* nouvelle_gare, float temps_supplementaire); // Prolonge un trajet avec une nouvelle gare
 Trajet trajet_raccourcir(Trajet trajet, char* gare_finale); // Raccourcit un trajet jusqu'à une gare spécifique
 

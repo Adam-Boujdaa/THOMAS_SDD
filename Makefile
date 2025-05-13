@@ -1,8 +1,8 @@
 CC = gcc
-CFLAGS = -Wall -g -ggdb -std=c99 -Iinclude/ -Ilib/
-LIBFLAGS = 
+CFLAGS = -Wall -g -ggdb -std=c99 -Iinclude/ -Ilib/cJSON/
+LIBFLAGS = -lm -lssl -lcrypto
 INCLUDE = include/
-SRC = $(wildcard src/*.c)
+SRC = $(filter-out src/voyageur.c, $(wildcard src/*.c)) # Exclude voyageur.c from redundant compilation
 MOVE = mv
 EXC = ./bin/main
 LIB = lib/
@@ -24,5 +24,5 @@ clean:
 	rm $(BIN) $(LIB)*
 
 test: compile
-	@$(CC) $(CFLAGS) -I$(INCLUDE) -o ./bin/test_export src/export_voyageurs.c $(LIB)*.o $(LIBFLAGS)
-	@./bin/test_export
+	@$(CC) $(CFLAGS) -I$(INCLUDE) -Ilib/cJSON -o ./bin/test_export_db test/test_export_db.c $(filter-out $(LIB)main.o, $(wildcard $(LIB)*.o)) $(LIBFLAGS)
+	@./bin/test_export_db

@@ -1,24 +1,18 @@
-#define _GNU_SOURCE   //obligatoire pr bien inclure string.h pr strdup apres 
+#define _GNU_SOURCE // Ensure strdup is declared
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "../include/trajet.h"
+#include "trajet.h"
 
-#define MAX_NOM_VILLE 85 // Longueur maximale du nom d'une ville en France
+#define strdup(s) ({ \
+    const char *_s = (s); \
+    char *_d = malloc(strlen(_s) + 1); \
+    if (_d) strcpy(_d, _s); \
+    _d; \
+})
 
-// Définition de la structure Trajet
-struct s_trajet {
-    char gare_depart[MAX_NOM_VILLE]; // Nom de la gare de départ
-    char gare_arrivee[MAX_NOM_VILLE]; // Nom de la gare d'arrivée
-    float duree; // Durée totale du trajet en heures
-    char** liste_gares; // Liste des gares intermédiaires (tableau dynamique de chaînes)
-    int nombre_gares; // Nombre de gares intermédiaires
-    int nombre_places; // Nombre de places disponibles
-    int nombre_reservations; // Nombre de réservations effectuées
-    int* places; // Tableau des places 0 = non resérvées, 1 = réservées
-    int id_trajet; // Identifiant unique du trajet
-};
-
+// Define the global TrajetDB instance
+TrajetDB trajetDB = { .nombre_trajets = 0 };
 
 // Constructeur 
 Trajet trajet_init(int id_trajet, int nombre_places) {
@@ -80,35 +74,6 @@ void trajet_supprimer_gare(Trajet trajet, char* nom_gare) {
 void trajet_modifier_temps(Trajet trajet, char* nom_gare, float nouveau_temps) {
     // Cette fonction pourrait être utilisée pour modifier la durée associée à une gare spécifique.
     // Implémentation dépendante des besoins.
-}
-
-// Manipulation des trajets
-Trajet trajet_fusionner(Trajet trajet1, Trajet trajet2) {
-    if (!trajet1 || !trajet2) return NULL;
-
-    Trajet nouveau_trajet = trajet_init();
-    strcpy(nouveau_trajet->gare_depart, trajet1->gare_depart);
-    strcpy(nouveau_trajet->gare_arrivee, trajet2->gare_arrivee);
-    nouveau_trajet->duree = trajet1->duree + trajet2->duree;
-
-    nouveau_trajet->liste_gares = malloc((trajet1->nombre_gares + trajet2->nombre_gares) * sizeof(char*));
-    if (!nouveau_trajet->liste_gares) {
-        fprintf(stderr, "Erreur : allocation mémoire pour fusionner les trajets.\n");
-        exit(EXIT_FAILURE);
-    }
-
-    for (int i = 0; i < trajet1->nombre_gares; i++) {
-        nouveau_trajet->liste_gares[i] = malloc(strlen(trajet1->liste_gares[i]) + 1);
-        strcpy(nouveau_trajet->liste_gares[i], trajet1->liste_gares[i]);
-    }
-    
-    for (int i = 0; i < trajet2->nombre_gares; i++) {
-        nouveau_trajet->liste_gares[trajet1->nombre_gares + i] = strdup(trajet2->liste_gares[i]);
-    }
-
-    nouveau_trajet->nombre_gares = trajet1->nombre_gares + trajet2->nombre_gares;
-    
-    return nouveau_trajet;
 }
 
 Trajet trajet_prolonger(Trajet trajet, char* nouvelle_gare, float temps_supplementaire) {
@@ -254,11 +219,6 @@ int trajet_nombre_gares(Trajet trajet) {
     return trajet->nombre_gares;
 }
 
-//Vérifie si le trajet est complet
-int trajet_est_complet(Trajet trajet) {
-    return trajet->nombre_reservations == trajet->nombre_places;
-}
-
 //Retourne l'ID du trajet
 int trajet_get_id(Trajet trajet) {
     return trajet->id_trajet;
@@ -294,7 +254,7 @@ Trajet trajet_charger(char* nom_fichier) {
         return NULL;
     }
 
-    Trajet trajet = trajet_init();
+    Trajet trajet = trajet_init(0, 0); // Provide default arguments
     fscanf(fp, "%s\n%s\n%f\n%d\n", 
            trajet->gare_depart, 
            trajet->gare_arrivee, 
@@ -320,6 +280,30 @@ Trajet trajet_charger(char* nom_fichier) {
 
     fclose(fp);
     return trajet;
+}
+
+Trajet trajet_fusionner(Trajet trajet1, Trajet trajet2) {
+    if (!trajet1 || !trajet2) return NULL;
+
+    // Create a new Trajet for the fusion
+    Trajet fusion = trajet_init(trajet1->id_trajet, trajet1->nombre_places);
+
+    // Copy gares from trajet1
+    for (int i = 0; i < trajet1->nombre_gares; i++) {
+        trajet_ajouter_gare(fusion, trajet1->liste_gares[i], 0.0); // Adjust time as needed
+    }
+
+    // Copy gares from trajet2
+    for (int i = 0; i < trajet2->nombre_gares; i++) {
+        trajet_ajouter_gare(fusion, trajet2->liste_gares[i], 0.0); // Adjust time as needed
+    }
+
+    // Update metadata
+    strcpy(fusion->gare_depart, trajet1->gare_depart);
+    strcpy(fusion->gare_arrivee, trajet2->gare_arrivee);
+    fusion->duree = trajet1->duree + trajet2->duree;
+
+    return fusion;
 }
 
 

@@ -8,9 +8,9 @@ int main() {
 
     // Création de deux trajets
     printf("Initialisation du trajet 1...\n");
-    Trajet trajet1 = trajet_init();
+    Trajet trajet1 = trajet_init(1, 50); // Provide required arguments
     printf("Initialisation du trajet 2...\n");
-    Trajet trajet2 = trajet_init();
+    Trajet trajet2 = trajet_init(2, 50);
 
     // Ajout de gares au trajet 1
     printf("Ajout de Paris à trajet 1 (temps = 0.0)...\n");
