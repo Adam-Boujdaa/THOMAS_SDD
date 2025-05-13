@@ -177,3 +177,25 @@ Voyageur connexion(int identifiant, const char* mot_de_passe) {
 }
 
 
+int supprimer_compte(int identifiant) {
+    for (int i = 0; i < nombre_voyageurs; i++) {
+        if (voyageurs[i] && voyageurs[i]->identifiant == identifiant) {
+            // Libérer la mémoire
+            voyageur_effacer(&voyageurs[i]);
+
+            // Décaler les éléments suivants
+            for (int j = i; j < nombre_voyageurs - 1; j++) {
+                voyageurs[j] = voyageurs[j + 1];
+            }
+
+            voyageurs[nombre_voyageurs - 1] = NULL;
+            nombre_voyageurs--;
+
+            printf("Compte supprimé avec succès.\n");
+            return 1;
+        }
+    }
+
+    printf("Identifiant introuvable. Suppression impossible.\n");
+    return 0;
+}
