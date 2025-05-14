@@ -100,10 +100,8 @@ Trajet trajet_raccourcir(Trajet trajet, char* gare_finale) {
             break;
         }
     }
-
     return trajet;
 }
-
 
 //places libres 
 int trajet_places_libres(Trajet trajet) {

@@ -6,6 +6,12 @@
 #include "trajet.h"
 #include "export_db.h"
 
+#define MAX_NOM_UTILISATEUR 50
+#define MAX_MDP 50
+#define MAX_VOYAGEURS 100
+
+void gerer_trajets();
+
 void display_menu() {
     printf("Connectez-vous en tant que:\n");
     printf("1) Administrateur\n");
@@ -33,7 +39,7 @@ void gerer_choix(int choix) {
                         gerer_trajets();
                         break;
                     case 2:
-                        export_trajets_to_file();
+                        export_trajets_to_file("output.txt");
                         break;
                     case 3:
                         changer_mot_de_passe();
@@ -147,7 +153,7 @@ void gerer_trajets() {
             char gare[MAX_NOM_VILLE];
             printf("Entrez le nom de la gare à ajouter : ");
             scanf("%s", gare);
-            trajet_ajouter_gare(&trajetDB.trajets[0], gare, 0.0); // Exemple avec le premier trajet
+            trajet_ajouter_gare(trajetDB.trajets[0], gare, 0.0); // Exemple avec le premier trajet
             printf("Gare ajoutée avec succès.\n");
             break;
         }
@@ -155,7 +161,7 @@ void gerer_trajets() {
             char gare[MAX_NOM_VILLE];
             printf("Entrez le nom de la gare à supprimer : ");
             scanf("%s", gare);
-            trajet_supprimer_gare(&trajetDB.trajets[0], gare); // Exemple avec le premier trajet
+            trajet_supprimer_gare(trajetDB.trajets[0], gare); // Exemple avec le premier trajet
             printf("Gare supprimée avec succès.\n");
             break;
         }
@@ -354,7 +360,6 @@ void creer_compte() {
     printf("Choisissez un mot de passe : ");
     scanf("%s", mot_de_passe);
 
-r
     if (voyageurDB.nombre_voyageurs >= MAX_VOYAGEURS) {
         printf("Nombre maximal de comptes atteint.\n");
         return;
@@ -375,4 +380,13 @@ void changer_mot_de_passe() {
 void mettre_a_jour_infos_controleur() {
     // TODO: Implement actual logic
     printf("Mise à jour des informations du contrôleur (stub).\n");
+}
+
+// Implement afficher_tous_les_trajets to display all trajets in trajetDB
+void afficher_tous_les_trajets() {
+    for (int i = 0; i < trajetDB.nombre_trajets; i++) {
+        if (trajetDB.trajets[i] != NULL) {
+            trajet_afficher(trajetDB.trajets[i]);
+        }
+    }
 }
