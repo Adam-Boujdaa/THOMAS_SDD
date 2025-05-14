@@ -1,3 +1,4 @@
+#define _GNU_SOURCE // Ensure strdup is declared
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #include "login.h"
 #include <stdio.h>
@@ -86,15 +87,15 @@ int check_hash(const char* mot_de_passe, const char* mot_de_passe_hash) {
 }
 
 // Fonction de connexion
-Voyageur* connexion(int identifiant, const char* mot_de_passe, Voyageur* liste, int taille) {
+Voyageur connexion(int identifiant, const char* mot_de_passe, Voyageur* liste, int taille) {
     for (int i = 0; i < taille; i++) {
-        if (liste[i].identifiant == identifiant) {
+        if (liste[i]->identifiant == identifiant) {
             char mot_de_passe_hash[TAILLE_MOT_DE_PASSE];
             hash_mot_de_passe(mot_de_passe, mot_de_passe_hash);
 
-            if (strncmp(liste[i].mot_de_passe_hash, mot_de_passe_hash, TAILLE_MOT_DE_PASSE) == 0) {
+            if (strncmp(liste[i]->mot_de_passe_hash, mot_de_passe_hash, TAILLE_MOT_DE_PASSE) == 0) {
                 printf("Connexion réussie.\n");
-                return &liste[i];
+                return liste[i];
             } else {
                 printf("Mot de passe incorrect.\n");
                 return NULL;

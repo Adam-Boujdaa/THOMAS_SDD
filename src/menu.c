@@ -171,3 +171,54 @@ void gerer_trajets() {
             printf("Choix invalide.\n");
     }
 }
+
+// Stub implementations for undefined functions
+int verifier_mot_de_passe_admin(const char* mot_de_passe) {
+    // TODO: Implement actual logic
+    return 1; // Placeholder return value
+}
+
+int verifier_mot_de_passe_controleur(const char* mot_de_passe) {
+    // TODO: Implement actual logic
+    return 1; // Placeholder return value
+}
+
+int verifier_identifiants_utilisateur(const char* utilisateur, const char* mot_de_passe) {
+    // TODO: Implement actual logic
+    return 1; // Placeholder return value
+}
+
+void rechercher_trajet() {
+    // TODO: Implement actual logic
+    printf("Recherche de trajet (stub).\n");
+}
+
+void rechercher_et_choisir_trajet() {
+    // TODO: Implement actual logic
+    printf("Recherche et choix de trajet (stub).\n");
+}
+
+void reserver_ou_modifier_trajet() {
+    // TODO: Implement actual logic
+    printf("Réservation ou modification de trajet (stub).\n");
+}
+
+void creer_compte() {
+    // TODO: Implement actual logic
+    printf("Création de compte (stub).\n");
+}
+
+void exporter_donnees() {
+    // TODO: Implement actual logic
+    printf("Exportation des données (stub).\n");
+}
+
+void changer_mot_de_passe() {
+    // TODO: Implement actual logic
+    printf("Changement de mot de passe (stub).\n");
+}
+
+void mettre_a_jour_infos_controleur() {
+    // TODO: Implement actual logic
+    printf("Mise à jour des informations du contrôleur (stub).\n");
+}

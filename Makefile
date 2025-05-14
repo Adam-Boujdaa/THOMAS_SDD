@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -Wall -g -ggdb -std=c99 -Iinclude/ -Ilib/cJSON/
 LIBFLAGS = -lm -lssl -lcrypto
-SRC = $(wildcard src/*.c) # Exclude voyageur.c from redundant compilation
+SRC = $(wildcard src/*.c)
 MOVE = mv
 EXC = ./bin/main
 LIB = lib/
