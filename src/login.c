@@ -4,29 +4,53 @@
 #include <string.h>
 #include <openssl/sha.h>
 #include "voyageur.h"
-#include <dotenv.h>
+#include "cJSON.h"
+#include <stdlib.h>
 
-// Function to read the administrator password from a dotenv file
-char* read_admin_password(const char* dotenv_path, enum user_type) {
-    // Load the dotenv file
-    if (dotenv_load(dotenv_path) != 0) {
-        fprintf(stderr, "Failed to load dotenv file: %s\n", dotenv_path);
+// Function to read the administrator password from a config.json file
+char* read_admin_password(const char* config_path, enum user_type type) {
+    FILE* file = fopen(config_path, "r");
+    if (!file) {
+        perror("Failed to open config file");
         return NULL;
     }
 
-    if (user_type == ADMIN) {
-        const char* password_hash = dotenv_get("MDP_ADMIN");
-    } else if (user_type == CONTROLLEUR) {
-        const char* password_hash = dotenv_get("MDP_CONTROLLEUR");
-    }
-    
-    if (password_hash == NULL) {
-        fprintf(stderr, "Password hash not found in dotenv file\n");
+    fseek(file, 0, SEEK_END);
+    long file_size = ftell(file);
+    fseek(file, 0, SEEK_SET);
+
+    char* file_content = (char*)malloc(file_size + 1);
+    if (!file_content) {
+        perror("Failed to allocate memory for config file content");
+        fclose(file);
         return NULL;
     }
 
-    // Return a copy of the password (caller is responsible for freeing it)
-    return strdup(password_hash);
+    fread(file_content, 1, file_size, file);
+    file_content[file_size] = '\0';
+    fclose(file);
+
+    cJSON* json = cJSON_Parse(file_content);
+    free(file_content);
+
+    if (!json) {
+        fprintf(stderr, "Failed to parse config file: %s\n", cJSON_GetErrorPtr());
+        return NULL;
+    }
+
+    const char* key = (type == ADMIN) ? "admin_mdp" : "controlleur_mdp";
+    cJSON* password_item = cJSON_GetObjectItemCaseSensitive(json, key);
+
+    if (!cJSON_IsString(password_item) || (password_item->valuestring == NULL)) {
+        fprintf(stderr, "Password not found or invalid in config file\n");
+        cJSON_Delete(json);
+        return NULL;
+    }
+
+    char* password = strdup(password_item->valuestring);
+    cJSON_Delete(json);
+
+    return password;
 }
 
 // Fonction pour hacher un mot de passe avec SHA256

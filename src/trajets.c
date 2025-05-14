@@ -308,7 +308,7 @@ Trajet trajet_fusionner(Trajet trajet1, Trajet trajet2) {
 }
 
 // Function to load trajets from a JSON file
-Trajet* charger_trajets(const char* fichier_json, int* nombre_trajets) {
+Trajet charger_trajets(const char* fichier_json, int* nombre_trajets) {
     FILE* fichier = fopen(fichier_json, "r");
     if (!fichier) {
         fprintf(stderr, "Erreur : Impossible d'ouvrir le fichier %s\n", fichier_json);
@@ -348,7 +348,7 @@ Trajet* charger_trajets(const char* fichier_json, int* nombre_trajets) {
     }
 
     *nombre_trajets = cJSON_GetArraySize(trajets_array);
-    Trajet* trajets = (Trajet*)malloc(*nombre_trajets * sizeof(Trajet));
+    Trajet trajets = malloc(*nombre_trajets * sizeof(struct s_trajet));
     if (!trajets) {
         fprintf(stderr, "Erreur : Mémoire insuffisante pour les trajets\n");
         cJSON_Delete(json);
