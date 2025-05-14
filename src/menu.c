@@ -15,28 +15,32 @@ void display_menu() {
     printf("4) Creer un compte\n");
 }
 
-void handle_choice(int choice) {
-    char username[50], password[50];
-    switch (choice) {
+void gerer_choix(int choix) {
+    char utilisateur[50], mot_de_passe[50];
+    switch (choix) {
         case 1:
             printf("Entrez le mot de passe Administrateur: ");
-            scanf("%s", password);
-            if (check_admin_password(password)) {
+            scanf("%s", mot_de_passe);
+            if (verifier_mot_de_passe_admin(mot_de_passe)) {
                 printf("1) Gestion des trajets\n");
                 printf("2) Exportation des trajets et des voyageurs\n");
                 printf("3) Administration\n");
-                int admin_choice;
-                scanf("%d", &admin_choice);
-                switch (admin_choice) {
+                printf("8) Quitter le programme\n");
+                int choix_admin;
+                scanf("%d", &choix_admin);
+                switch (choix_admin) {
                     case 1:
-                        manage_trips();
+                        gerer_trajets();
                         break;
                     case 2:
-                        export_data();
+                        exporter_donnees();
                         break;
                     case 3:
-                        change_password();
+                        changer_mot_de_passe();
                         break;
+                    case 8:
+                        printf("Fermeture du programme.\n");
+                        exit(0);
                     default:
                         printf("Choix invalide.\n");
                 }
@@ -46,19 +50,23 @@ void handle_choice(int choice) {
             break;
         case 2:
             printf("Entrez le mot de passe Controleur: ");
-            scanf("%s", password);
-            if (check_controller_password(password)) {
+            scanf("%s", mot_de_passe);
+            if (verifier_mot_de_passe_controleur(mot_de_passe)) {
                 printf("4) Recherche\n");
                 printf("5) Administration\n");
-                int controller_choice;
-                scanf("%d", &controller_choice);
-                switch (controller_choice) {
+                printf("8) Quitter le programme\n");
+                int choix_controleur;
+                scanf("%d", &choix_controleur);
+                switch (choix_controleur) {
                     case 4:
-                        search_trip();
+                        rechercher_trajet();
                         break;
                     case 5:
-                        update_controller_info();
+                        mettre_a_jour_infos_controleur();
                         break;
+                    case 8:
+                        printf("Fermeture du programme.\n");
+                        exit(0);
                     default:
                         printf("Choix invalide.\n");
                 }
@@ -68,21 +76,25 @@ void handle_choice(int choice) {
             break;
         case 3:
             printf("Entrez votre nom d'utilisateur: ");
-            scanf("%s", username);
+            scanf("%s", utilisateur);
             printf("Entrez votre mot de passe: ");
-            scanf("%s", password);
-            if (check_user_credentials(username, password)) {
+            scanf("%s", mot_de_passe);
+            if (verifier_identifiants_utilisateur(utilisateur, mot_de_passe)) {
                 printf("6) Recherche et Choix d’un trajet\n");
                 printf("7) Réservation/Modification d’un trajet\n");
-                int user_choice;
-                scanf("%d", &user_choice);
-                switch (user_choice) {
+                printf("8) Quitter le programme\n");
+                int choix_utilisateur;
+                scanf("%d", &choix_utilisateur);
+                switch (choix_utilisateur) {
                     case 6:
-                        search_and_choose_trip();
+                        rechercher_et_choisir_trajet();
                         break;
                     case 7:
-                        book_or_modify_trip();
+                        reserver_ou_modifier_trajet();
                         break;
+                    case 8:
+                        printf("Fermeture du programme.\n");
+                        exit(0);
                     default:
                         printf("Choix invalide.\n");
                 }
@@ -91,24 +103,71 @@ void handle_choice(int choice) {
             }
             break;
         case 4:
-            create_account();
+            creer_compte();
             printf("6) Recherche et Choix d’un trajet\n");
             printf("7) Réservation/Modification d’un trajet\n");
-            int new_user_choice;
-            scanf("%d", &new_user_choice);
-            switch (new_user_choice) {
+            printf("8) Quitter le programme\n");
+            int choix_nouvel_utilisateur;
+            scanf("%d", &choix_nouvel_utilisateur);
+            switch (choix_nouvel_utilisateur) {
                 case 6:
-                    search_and_choose_trip();
+                    rechercher_et_choisir_trajet();
                     break;
                 case 7:
-                    book_or_modify_trip();
+                    reserver_ou_modifier_trajet();
                     break;
+                case 8:
+                    printf("Fermeture du programme.\n");
+                    exit(0);
                 default:
                     printf("Choix invalide.\n");
             }
             break;
+        case 8:
+            printf("Fermeture du programme.\n");
+            exit(0);
         default:
             printf("Choix invalide.\n");
             break;
+    }
+}
+
+void gerer_trajets() {
+    printf("Gestion des trajets :\n");
+    printf("1) Ajouter une gare\n");
+    printf("2) Supprimer une gare\n");
+    printf("3) Afficher les trajets\n");
+    printf("4) Quitter\n");
+
+    int choix;
+    scanf("%d", &choix);
+
+    switch (choix) {
+        case 1: {
+            char gare[MAX_NOM_VILLE];
+            printf("Entrez le nom de la gare à ajouter : ");
+            scanf("%s", gare);
+            trajet_ajouter_gare(&trajetDB.trajets[0], gare, 0.0); // Exemple avec le premier trajet
+            printf("Gare ajoutée avec succès.\n");
+            break;
+        }
+        case 2: {
+            char gare[MAX_NOM_VILLE];
+            printf("Entrez le nom de la gare à supprimer : ");
+            scanf("%s", gare);
+            trajet_supprimer_gare(&trajetDB.trajets[0], gare); // Exemple avec le premier trajet
+            printf("Gare supprimée avec succès.\n");
+            break;
+        }
+        case 3:
+            for (int i = 0; i < trajetDB.nombre_trajets; i++) {
+                trajet_afficher(trajetDB.trajets[i]);
+            }
+            break;
+        case 4:
+            printf("Retour au menu principal.\n");
+            return;
+        default:
+            printf("Choix invalide.\n");
     }
 }
