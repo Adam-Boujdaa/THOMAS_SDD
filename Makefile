@@ -1,29 +1,21 @@
 CC = gcc
-CFLAGS = -Wall -g -ggdb -std=c99 -Iinclude/ -Ilib/cJSON/
-LIBFLAGS = -lm -lssl -lcrypto
-SRC = $(wildcard src/*.c)
-MOVE = mv
-EXC = ./bin/main
-LIB = lib/
-BIN = bin/*
+CFLAGS = -Wall -Wextra -Iinclude -I/usr/include/cjson
+LDFLAGS = -lssl -lcrypto -lcjson
 
-all:
-	$(MAKE) compile -s
-	$(MAKE) run -s
+SRC = src/main.c src/trajet.c src/voyageur.c src/place.c src/auth.c src/json_export.c src/menu.c
+OBJ = $(SRC:.c=.o)
 
-compile:
-	@$(CC) $(CFLAGS) -I$(INCLUDE) -c $(SRC) $(LIBFLAGS)
-	@$(MOVE) *.o $(LIB)
-	@$(CC) $(CFLAGS) -o $(EXC) $(LIB)*.o $(LIBFLAGS)
+BIN = bin/programme
 
-run:
-	@$(EXC)
+all: $(BIN)
+
+$(BIN): $(OBJ)
+	$(CC) -o $@ $^ $(LDFLAGS)
+
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm $(BIN) $(LIB)*
+	rm -f $(OBJ) $(BIN)
 
-test: compile
-	@$(CC) $(CFLAGS) -I$(INCLUDE) -Ilib/cJSON -o ./bin/test_export_db test/test_export_db.c $(filter-out $(LIB)main.o, $(wildcard $(LIB)*.o)) $(LIBFLAGS)
-	@./bin/test_export_db
-	@$(CC) $(CFLAGS) -I$(INCLUDE) -Ilib/cJSON -o ./bin/test_import_trajets test/test_import_trajets.c src/trajets.c lib/cJSON/cJSON.c $(LIBFLAGS)
-	@./bin/test_import_trajets
+.PHONY: all clean

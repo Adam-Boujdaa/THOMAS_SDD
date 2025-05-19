@@ -1,73 +1,41 @@
-#ifndef __TRAJET_H__
-#define __TRAJET_H__
+#ifndef TRAJET_H
+#define TRAJET_H
 
+#include <stdbool.h>
 
+#define MAX_GARES 10
 #define MAX_TRAJETS 100
-#define MAX_NOM_VILLE 85 // Longueur maximale du nom d'une ville en France
 
-// Définition de la structure Trajet
-struct s_trajet {
-    char gare_depart[MAX_NOM_VILLE]; // Nom de la gare de départ
-    char gare_arrivee[MAX_NOM_VILLE]; // Nom de la gare d'arrivée
-    float duree; // Durée totale du trajet en heures
-    char** liste_gares; // Liste des gares intermédiaires (tableau dynamique de chaînes)
-    int nombre_gares; // Nombre de gares intermédiaires
-    int nombre_places; // Nombre de places disponibles
-    int nombre_reservations; // Nombre de réservations effectuées
-    int* places; // Tableau des places 0 = non resérvées, 1 = réservées
-    int id_trajet; // Identifiant unique du trajet
-};
+typedef struct {
+    char nom[50];
+    float temps; // Temps en heures depuis le départ
+} Gare;
 
-typedef struct s_trajet * Trajet;
+typedef struct {
+    char nom[50];
+    Gare gares[MAX_GARES];
+    int nombre_gares;
+    int capacite; // nombre total de places
+    int places_libres; // nombre de places libres
+} Trajet;
 
-// Define a struct to manage the database of Trajet pointers
 typedef struct s_trajetDB {
     Trajet trajets[MAX_TRAJETS];
     int nombre_trajets;
 } TrajetDB;
 
-// Declare the TrajetDB instance as an external variable
-extern TrajetDB trajetDB;
+Trajet trajet_init(int id); // Removed the unused `max_gares` parameter
+void trajet_ajouter_gare(Trajet *trajet, const char *nom, float temps);
+void trajet_afficher(const Trajet *trajet);
+Trajet trajet_fusionner(const Trajet *trajet1, const Trajet *trajet2);
+void trajet_prolonger(Trajet *trajet, const char *nom, float temps);
+void trajet_raccourcir(Trajet *trajet, const char *nom);
+void trajet_sauvegarder(const Trajet *trajet, const char *filename);
+Trajet trajet_charger(const char *filename);
+void trajet_effacer(Trajet *trajet);
+Trajet trajet_rechercher(const char *gare_depart, const char *gare_arrivee);
+void modifier_trajet_interactif(); // Declare the function
+void importer_trajets_depuis_json(const char *filename);
+void exporter_trajets_txt();
 
-// Constructeur
-Trajet trajet_init(int, int); // Crée et initialise un trajet vide
-
-// Opérateurs : Gestion des gares dans un trajet
-void trajet_ajouter_gare(Trajet trajet, char* nom_gare, float temps_depuis_depart); // Ajoute une gare au trajet
-void trajet_supprimer_gare(Trajet trajet, char* nom_gare); // Supprime une gare du trajet
-void trajet_modifier_temps(Trajet trajet, char* nom_gare, float nouveau_temps); // Modifie le temps d'arrivée à une gare
-
-// Opérateurs : Manipulation des trajets
-Trajet trajet_prolonger(Trajet trajet, char* nouvelle_gare, float temps_supplementaire); // Prolonge un trajet avec une nouvelle gare
-Trajet trajet_raccourcir(Trajet trajet, char* gare_finale); // Raccourcit un trajet jusqu'à une gare spécifique
-
-// Gestion des fichiers
-void trajet_sauvegarder(Trajet trajet, char* nom_fichier); // Sauvegarde un trajet dans un fichier
-Trajet trajet_charger(char* nom_fichier); // Charge un trajet depuis un fichier
-
-// Affichage et recherche
-void trajet_afficher(Trajet trajet); // Affiche les détails d'un trajet
-Trajet trajet_rechercher(char* gare_depart, char* gare_arrivee); // Recherche un trajet entre deux gares
-
-// Fonctions probablement pratiques
-int trajet_nombre_gares(Trajet trajet); // Retourne le nombre de gares dans le trajet
-float trajet_duree_totale(Trajet trajet); // Calcule la durée totale du trajet
-int trajet_est_vide(Trajet trajet); // Vérifie si le trajet est vide
-void trajet_effacer(Trajet* trajet); // Efface complètement un objet Trajet pour libérer la mémoire
-
-// Fonctions de réservation et de places
-int trajet_places_libres(Trajet trajet); // Retourne le nombre de places libres
-int trajet_reserver_place(Trajet trajet); // Réserve une place et retourne son numéro
-void trajet_annuler_place(Trajet trajet, int num_place); // Annule la réservation d'une place
-void trajet_afficher_places_libres(Trajet trajet); // Affiche les places libres
-void trajet_afficher_places_reservees(Trajet trajet); // Affiche les places réservées
-void trajet_reinitialeser_reservations(Trajet trajet); // Réinitialise les réservations d'un trajet
-
-//Fonctions pour afficher un detail specifique d'un trajet (pr la confidentialite des structures dans main et .h)
-int trajet_est_complet(Trajet trajet); // Vérifie si le trajet est complet
-int trajet_get_id(Trajet trajet); // Retourne l'ID du trajet
-
-
-Trajet charger_trajets(const char* fichier_json, int* nombre_trajets);
-
-#endif // __TRAJET_H__
+#endif

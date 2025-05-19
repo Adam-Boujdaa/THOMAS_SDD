@@ -1,0 +1,67 @@
+Objectifs du projet
+L’objectif de ce projet est de se familiariser à l’écriture d’un programme à plusieurs (2 à 3 personnes
+maximum) avec un partage des tâches tant au niveau de la conception, de la programmation que de la
+documentation du projet.
+Il va s’agir de produire un programme (fichiers source et un exécutable testé et opérationnel ainsi que
+la documentation) dont le sujet est présenté dans la suite du document. Le développement de ce
+programme se fera obligatoirement sous environnement Linux, en langage C.
+Temps estimé : 20 heures de travail effectif.
+Organisation
+Vous travaillerez en binôme (exceptionnellement en trinôme).
+Vous devrez rendre pour le dimanche 30 avril 2025 23h55 GMT dernier délai par voie électronique
+(à l’adresse Philippe.Truillet@upssitech.fr)
+1. Le fichier .h contenant les références de vos structures de données et les prototypes des fonctions
+utilisées avec leurs paramètres d’appel.
+Vous devrez rendre pour le lundi 14 mai 2025 23h55 GMT dernier délai par voie électronique (à
+l’adresse Philippe.Truillet@upssitech.fr)
+1. Le programme source complet (.h, .c et Makefile) largement commenté par exemple avec
+doxygen https://www.doxygen.nl et avec un exécutable testé et opérationnel et sa
+documentation d’installation (même basique). Vous pouvez utiliser un gestionnaire de version de
+code comme git
+2. Un rapport présentant le travail effectué :
+a. Organisation du programme : découpage en fonctions, rôle de ces fonctions, explications
+du programme
+b. Eventuellement le mode d’emploi du programme
+c. Un mini-bilan qualitatif du travail, difficultés rencontrées, etc.
+Le tout sera placé dans un fichier archive .zip, .gz, .tgz ou .7z.
+Enfin, une présentation orale de 10 mn (avec document pour la vidéo-projection) aura lieu après la fin
+du projet à partir du 15 mai 2025 (lien d’inscription à venir).
+L2 CUPGE UPSSITECH 2024/2025
+Présentation du projet
+Vous devez réaliser un programme en langage C permettant de gérer une compagnie de chemin de fer
+en permettant de créer des parcours (ensemble de trajets de gares) et la réservation de places sur des
+tronçons de parcours par des voyageurs.
+Le modèle à mettre en œuvre contiendra au moins trois structures différentes : Voyageur, Place et Trajet
+mais vous pouvez créer autant de structures que nécessaire sachant qu’un « Voyageur » peut voyager
+sur tout ou partie d’un « Trajet » et prendre plusieurs « Trajet » à la suite. Une « Place » peut être occupée
+par un ou plusieurs « Voyageur » sur un « Trajet ».
+Pour simplifier le problème, nous nous limiterons aux 4 trajets (aller-retour) interconnectés :
+• Trajet 1 comportant les gares suivantes : Paris, Orléans (+1h), Limoges (+3h30), Brive (+4h30),
+Montauban (+5h30), Toulouse (+6h)
+• Trajet 2 comportant les gares suivantes : Bordeaux, Agen (+1h), Montauban (+2h00), Toulouse
+(+2h30), Narbonne (+4h00), Montpellier (+5h00), Marseille (+6h00), Nice (+8h30)
+• Trajet 3 comportant les gares suivantes : Paris, Lyon (+1h30), Marseille (+3h00)
+• Trajet 4 comportant les gares suivantes : Paris, Tours (+1h), Bordeaux (+2h00), Biarritz (+3h30)
+Nous négligerons les temps de correspondance de chaque train et la longueur des trajets ne sera calculé
+qu’avec le temps de trajet des trains.
+Enfin, pour des raisons de praticité pour les tests, vous limiterez le nombre de places disponibles dans
+chaque train à 10 places ( !).
+Contraintes de programmation
+Vous devrez être capable d’exporter toutes les données des voyageurs d’un trajet spécifique choisi (un
+trajet = un train) dans le format JSON
+(https://fr.wikipedia.org/wiki/JavaScript_Object_Notation).
+Les listes des trajets et des gares seront chargées depuis un fichier (un format de représentation
+standardisé est à préférer).
+Votre programme devra proposer trois menus différents : le premier sera limité aux administrateurs de
+la société de train (protégé par mot de passe) et devra apparaître comme celui-ci :
+(1) Gestion des trajets : ajouter, modifier, supprimer des trajets et ajouter/supprimer des gares
+(2) Exportation des trajets et des voyageurs enregistrés au format JSON
+(3) Administration : changer le mot de passe d’une personne enregistrée (le mot de passe devra
+être chiffré)
+Le menu des contrôleurs (accessible via un identifiant et un mot de passe) devra permettre :
+(4) Recherche : rechercher le trajet du voyageur avec son numéro d’identification
+(5) Administration : changer son mot de passe ou ses coordonnées (qui devra être chiffré).
+Le menu des voyageurs devra enfin permettre :
+(6) Recherche et Choix d’un trajet en donnant les gares de départ et d’arrivée du trajet souhaité
+(7) Réservation/Modification d’un trajet
+Et dans tous les cas, de (8) Quitter le programme

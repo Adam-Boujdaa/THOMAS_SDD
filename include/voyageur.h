@@ -1,59 +1,33 @@
 #ifndef VOYAGEUR_H
 #define VOYAGEUR_H
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "trajet.h"  // Inclusion de l'entête pour le type Trajet
+#include "trajet.h" // Ensure MAX_TRAJETS is defined
 
-#define TAILLE_NOM 100
-#define TAILLE_MOT_DE_PASSE 64
-#define TAILLE_HASH 256 // Define TAILLE_HASH to match the size of hashed passwords
-#define MAX_RESERVATIONS 10
 #define MAX_VOYAGEURS 100
+#define MAX_USERNAME_LENGTH 50
+#define MAX_PASSWORD_LENGTH 256
 
-struct s_voyageur {
-    char nom[TAILLE_NOM];
-    int identifiant;
-    char mot_de_passe_hash[TAILLE_HASH];
-    Trajet trajets_reserves[MAX_RESERVATIONS];
+// IMPORTANT : Le champ 'identifiant' de Voyageur doit correspondre exactement au 'username' de User (auth.h)
+// Cela permet de relier l'utilisateur authentifié à son profil de voyageur pour les réservations.
+// Lorsqu'un utilisateur se connecte, on recherche le Voyageur avec le même identifiant pour gérer ses trajets et réservations.
+
+typedef struct {
+    char nom[50];
+    char identifiant[MAX_USERNAME_LENGTH];
+    char password_hash[MAX_PASSWORD_LENGTH]; // Mot de passe haché pour l'authentification
+    Trajet trajets[MAX_TRAJETS];
+    int nombre_trajets;
+    char reservations[MAX_TRAJETS][256]; // noms des trajets réservés (taille augmentée)
     int nombre_reservations;
-};
+} Voyageur;
 
-typedef struct s_voyageur* Voyageur;
-
-// Define a struct to manage the database of Voyageur pointers
 typedef struct s_voyageurDB {
     Voyageur voyageurs[MAX_VOYAGEURS];
     int nombre_voyageurs;
 } VoyageurDB;
 
-// Declare the global VoyageurDB instance as an external variable
-extern VoyageurDB voyageurDB;
+void ajouter_voyageur(Voyageur *voyageur, const char *nom, const char *identifiant);
+void reserver_trajet(Voyageur *voyageur, const Trajet *trajet);
+void afficher_voyageur(const Voyageur *voyageur);
 
-
-// Initialiser un voyageur avec un nom, un identifiant et un mot de passe
-Voyageur voyageur_init(const char* nom, int identifiant, const char* mot_de_passe);
-
-// Supprimer un voyageur
-void voyageur_effacer(Voyageur* voyageur);
-
-// Récupérer l'identifiant d'un voyageur
-int voyageur_get_identifiant(Voyageur v);
-
-// Récupérer le nom d'un voyageur
-const char* voyageur_get_nom(Voyageur v);
-
-// Rechercher un voyageur par identifiant
-Voyageur voyageur_rechercher_par_id(int identifiant, Voyageur* liste, int taille);
-
-// Ajouter une réservation pour un voyageur
-int voyageur_reserver_trajet(Voyageur voyageur, Trajet trajet);
-
-// Modifier une réservation de trajet
-int voyageur_modifier_trajet(Voyageur voyageur, Trajet ancien, Trajet nouveau);
-
-// Afficher les réservations d'un voyageur
-void voyageur_afficher_reservations(Voyageur voyageur);
-
-#endif // VOYAGEUR_H
+#endif
